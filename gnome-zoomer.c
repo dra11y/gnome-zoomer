@@ -15,6 +15,7 @@
 #define COLOUR_PURPLE "\033[1;35m"
 #define COLOUR_CYAN "\033[1;36m"
 #define COLOUR_RESET "\033[0m"
+#define NUM_STOPS 8
 
 void print_usage() {
     printf(
@@ -79,7 +80,26 @@ int main(int argc, char *argv[]) {
     gdouble current_mag_factor = mag_factor == NULL ? 1.0 : g_variant_get_double(mag_factor);
 
     // Determine the new magnification factor based on the increment requested.
-    gdouble new_mag_factor = current_mag_factor + mag_increment;
+    double magnitudes[NUM_STOPS] = {1.0, 1.4, 2.0, 2.8, 4.0, 5.6, 8.0, 11.0};
+    gdouble new_mag_factor = current_mag_factor;
+    if (mag_increment > 0) {
+        // Find the next higher value in the list
+        for (int i = 0; i < NUM_STOPS; i++) {
+            if (current_mag_factor < magnitudes[i]) {
+                new_mag_factor = magnitudes[i];
+                break; // Exit the loop once we find the next higher value
+            }
+        }
+    } else {
+        // Find the next lower value in the list
+        for (int i = NUM_STOPS - 1; i >= 0; i--) {
+            if (current_mag_factor > magnitudes[i]) {
+                new_mag_factor = magnitudes[i];
+                break; // Exit the loop once we find the next higher value
+            }
+        }
+    }
+
     if (new_mag_factor < 1.0) {
         new_mag_factor = 1.0;
     }
